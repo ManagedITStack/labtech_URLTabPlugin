@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using LabTech.Interfaces;
 
-namespace URLTabPlugin
+public class Plugin : IPlugin
 {
-    public class Class1
-    {
-    }
+
 }
