@@ -160,7 +160,6 @@ public class Tabs : LabTech.Interfaces.ITabs
             if (result != "-9999")
             {
 
-                MessageBox.Show(result);
                 var UTP = Activator.CreateInstance<List<URLTabPlugin>>();
                 using (var memoryStream = new MemoryStream(Encoding.Unicode.GetBytes(result)))
                 {
