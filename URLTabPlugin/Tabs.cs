@@ -11,6 +11,7 @@ using System.Runtime.Serialization.Json;
 public class Tabs : LabTech.Interfaces.ITabs
 {
     private IControlCenter objHost;
+    private FlowLayoutPanel dynamicFlowLayoutPanel;
 
     void LabTech.Interfaces.ITabs.AlertsClose()
     {
@@ -139,6 +140,11 @@ public class Tabs : LabTech.Interfaces.ITabs
     {
         return null;
     }
+    void btnAddTab_Click(object sender, EventArgs e)
+    {
+        URLTabPluginConfigTab utpct = new URLTabPluginConfigTab();
+        dynamicFlowLayoutPanel.Controls.Add(utpct);
+    }
     public void BuildSubURLTabs(object sender, EventArgs ev, URLTabPlugin.TabTypes tt)
     {
 
@@ -193,7 +199,6 @@ public class Tabs : LabTech.Interfaces.ITabs
                     if (utp.TabType == tt)
                     {
 
-
                         TabPage tp = new TabPage(utp.TabLabel);
                         tc.Controls.Add(tp);
                         tp.Dock = DockStyle.Fill;
@@ -209,6 +214,47 @@ public class Tabs : LabTech.Interfaces.ITabs
                         wb.BringToFront();
                         wb.Navigate(utp.TabUrl);
                         wb.Refresh();
+                    }
+                }
+                /* Build the config tab */
+                TabPage tconfig = new TabPage("Config");
+                tc.Controls.Add(tconfig);
+                tconfig.Dock = DockStyle.Fill;
+
+                /* Dynamic flow layout to hold the buttons */
+                FlowLayoutPanel buttonFlowLayoutPanel = new FlowLayoutPanel();
+                buttonFlowLayoutPanel.BringToFront();
+                buttonFlowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
+                buttonFlowLayoutPanel.Location = new System.Drawing.Point(8, 10);
+                buttonFlowLayoutPanel.Size = new System.Drawing.Size(510, 32);
+                tconfig.Controls.Add(buttonFlowLayoutPanel);
+                Button btnSaveConfig = new Button();
+                btnSaveConfig.Text = "Save Config";
+                Button btnAddTab = new Button();
+                btnAddTab.Text = "Add Tab";
+                btnAddTab.Click += new EventHandler(btnAddTab_Click);
+                buttonFlowLayoutPanel.Controls.Add(btnSaveConfig);
+                buttonFlowLayoutPanel.Controls.Add(btnAddTab);
+
+                /* Dynamic Flow Layout to hold taburlconfigs */
+                dynamicFlowLayoutPanel = new FlowLayoutPanel();
+                dynamicFlowLayoutPanel.BringToFront();
+                dynamicFlowLayoutPanel.FlowDirection = FlowDirection.TopDown;
+                dynamicFlowLayoutPanel.Location = new System.Drawing.Point(0, 40);
+                dynamicFlowLayoutPanel.Size = new System.Drawing.Size(510,600);
+                dynamicFlowLayoutPanel.AutoScroll = true;
+                dynamicFlowLayoutPanel.WrapContents = false;
+                tconfig.Controls.Add(dynamicFlowLayoutPanel);
+
+                string results = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + propertyString + "%'");
+                if (results != "-9999")
+                {
+                    /* Rewrite, this doesn't make sense. Deserialize it instead and loop through those results. */
+                    foreach (URLTabPlugin utp in UTP)
+                    {
+                        URLTabPluginConfigTab utpct = new URLTabPluginConfigTab();
+                        utpct.tabLabel = results;
+                        dynamicFlowLayoutPanel.Controls.Add(utpct);
                     }
                 }
             }
