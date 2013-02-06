@@ -5,6 +5,11 @@ Download:
 ===========
 https://sourceforge.net/projects/labtechurltab/files/
 
+Screenshots
+===========
+Plugin interface: http://i.imgur.com/jn2TgiD.png
+Config interface: http://i.imgur.com/aYZ72H4.png
+
 Usage:
 ===========
 1. Rename the dll file to whatever you would like your URL Tab to be titled. Use underscores (_) for spaces. (Eg. My Web Tools > My_Web_Tools.dll)

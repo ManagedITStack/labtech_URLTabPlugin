@@ -216,27 +216,27 @@ public class Tabs : LabTech.Interfaces.ITabs
             TabPage c = (TabPage)p.Parent;
             Form f = c.FindForm();
             f.WindowState = FormWindowState.Maximized;
+            TabControl tc = new TabControl();
+            p.Controls.Add(tc);
+            tc.Dock = DockStyle.Fill;
 
             /* Create a list of URLTabs */
 
             this.propertyString = "URLTabPlugin+" + c.Text.Replace(" ", "_");
 
             string result = objHost.GetSQL("SELECT Value FROM properties where Name LIKE '%" + this.propertyString + "%'");
+            
+            var UTP = Activator.CreateInstance<List<URLTabPlugin>>();
 
             if (result != "-9999")
             {
-
-                var UTP = Activator.CreateInstance<List<URLTabPlugin>>();
+                
                 using (var memoryStream = new MemoryStream(Encoding.Unicode.GetBytes(result)))
                 {
                     var serializer = new DataContractJsonSerializer(UTP.GetType());
                     UTP = (List<URLTabPlugin>)serializer.ReadObject(memoryStream);
                 }
 
-
-                TabControl tc = new TabControl();
-                p.Controls.Add(tc);
-                tc.Dock = DockStyle.Fill;
 
                 foreach (URLTabPlugin utp in UTP)
                 {
@@ -260,99 +260,99 @@ public class Tabs : LabTech.Interfaces.ITabs
                         wb.Refresh();
                     }
                 }
-                /* Build the config tab */
-                TabPage tconfig = new TabPage("Config");
-                tc.Controls.Add(tconfig);
-                tconfig.Dock = DockStyle.Fill;
+            }
+            /* Build the config tab */
+            TabPage tconfig = new TabPage("Config");
+            tc.Controls.Add(tconfig);
+            tconfig.Dock = DockStyle.Fill;
 
-                /* Dynamic flow layout to hold the buttons */
-                FlowLayoutPanel buttonFlowLayoutPanel = new FlowLayoutPanel();
-                buttonFlowLayoutPanel.BringToFront();
-                buttonFlowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
-                buttonFlowLayoutPanel.Location = new System.Drawing.Point(8, 10);
-                buttonFlowLayoutPanel.Size = new System.Drawing.Size(510, 32);
-                tconfig.Controls.Add(buttonFlowLayoutPanel);
-                Button btnSaveConfig = new Button();
-                btnSaveConfig.Text = "Save Config";
-                btnSaveConfig.Click += new EventHandler(btnSaveConfig_Click);
-                Button btnAddTab = new Button();
-                btnAddTab.Text = "Add Tab";
-                btnAddTab.Click += new EventHandler(btnAddTab_Click);
-                buttonFlowLayoutPanel.Controls.Add(btnSaveConfig);
-                buttonFlowLayoutPanel.Controls.Add(btnAddTab);
+            /* Dynamic flow layout to hold the buttons */
+            FlowLayoutPanel buttonFlowLayoutPanel = new FlowLayoutPanel();
+            buttonFlowLayoutPanel.BringToFront();
+            buttonFlowLayoutPanel.FlowDirection = FlowDirection.LeftToRight;
+            buttonFlowLayoutPanel.Location = new System.Drawing.Point(8, 10);
+            buttonFlowLayoutPanel.Size = new System.Drawing.Size(510, 32);
+            tconfig.Controls.Add(buttonFlowLayoutPanel);
+            Button btnSaveConfig = new Button();
+            btnSaveConfig.Text = "Save Config";
+            btnSaveConfig.Click += new EventHandler(btnSaveConfig_Click);
+            Button btnAddTab = new Button();
+            btnAddTab.Text = "Add Tab";
+            btnAddTab.Click += new EventHandler(btnAddTab_Click);
+            buttonFlowLayoutPanel.Controls.Add(btnSaveConfig);
+            buttonFlowLayoutPanel.Controls.Add(btnAddTab);
 
-                /* Dynamic Flow Layout to hold taburlconfigs */
-                dynamicFlowLayoutPanel = new FlowLayoutPanel();
-                dynamicFlowLayoutPanel.BringToFront();
-                dynamicFlowLayoutPanel.FlowDirection = FlowDirection.TopDown;
-                dynamicFlowLayoutPanel.Location = new System.Drawing.Point(0, 40);
-                dynamicFlowLayoutPanel.Size = new System.Drawing.Size(510,600);
-                dynamicFlowLayoutPanel.AutoScroll = true;
-                dynamicFlowLayoutPanel.WrapContents = false;
-                tconfig.Controls.Add(dynamicFlowLayoutPanel);
+            /* Dynamic Flow Layout to hold taburlconfigs */
+            dynamicFlowLayoutPanel = new FlowLayoutPanel();
+            dynamicFlowLayoutPanel.BringToFront();
+            dynamicFlowLayoutPanel.FlowDirection = FlowDirection.TopDown;
+            dynamicFlowLayoutPanel.Location = new System.Drawing.Point(0, 40);
+            dynamicFlowLayoutPanel.Size = new System.Drawing.Size(510,600);
+            dynamicFlowLayoutPanel.AutoScroll = true;
+            dynamicFlowLayoutPanel.WrapContents = false;
+            tconfig.Controls.Add(dynamicFlowLayoutPanel);
 
-                string results = objHost.GetSQL("SELECT Value FROM properties where Name LIKE '%" + propertyString + "%'");
-                if (results != "-9999")
+            string results = objHost.GetSQL("SELECT Value FROM properties where Name LIKE '%" + propertyString + "%'");
+            if (results != "-9999")
+            {
+                List<string> TabsCompleted = new List<string>();
+
+                /* Rewrite, this doesn't make sense. Deserialize it instead and loop through those results. */
+                foreach (URLTabPlugin utp in UTP)
                 {
-                    List<string> TabsCompleted = new List<string>();
+                    URLTabPluginConfigTab utpct;
 
-                    /* Rewrite, this doesn't make sense. Deserialize it instead and loop through those results. */
-                    foreach (URLTabPlugin utp in UTP)
+                    // If the tab isn't in the list yet, create it
+                    if (TabsCompleted.IndexOf(utp.TabLabel) < 0)
                     {
-                        URLTabPluginConfigTab utpct;
-
-                        // If the tab isn't in the list yet, create it
-                        if (TabsCompleted.IndexOf(utp.TabLabel) < 0)
-                        {
-                            TabsCompleted.Add(utp.TabLabel);
-                            utpct = new URLTabPluginConfigTab();
-                            utpct.tabLabel = utp.TabLabel;
-                            utpct.tabClientUrl = utp.TabUrl;
-                            utpct.tabClientCheck = CheckState.Checked;
-                            dynamicFlowLayoutPanel.Controls.Add(utpct);
+                        TabsCompleted.Add(utp.TabLabel);
+                        utpct = new URLTabPluginConfigTab();
+                        utpct.tabLabel = utp.TabLabel;
+                        utpct.tabClientUrl = utp.TabUrl;
+                        utpct.tabClientCheck = CheckState.Checked;
+                        dynamicFlowLayoutPanel.Controls.Add(utpct);
                             
-                        }
-                        // if it is, find it.
-                        else {
-                            Control[] utpcts = dynamicFlowLayoutPanel.Controls.Find("txtTabLabel",true);
+                    }
+                    // if it is, find it.
+                    else {
+                        Control[] utpcts = dynamicFlowLayoutPanel.Controls.Find("txtTabLabel",true);
 
-                            foreach(Control utpctss in utpcts)
+                        foreach(Control utpctss in utpcts)
+                        {
+                            if (utpctss.Text == utp.TabLabel)
                             {
-                                if (utpctss.Text == utp.TabLabel)
+                                /* ..And check and fill in the right datafields based on the Tab type */
+                                if (utp.TabType == URLTabPlugin.TabTypes.Client)
                                 {
-                                    /* ..And check and fill in the right datafields based on the Tab type */
-                                    if (utp.TabType == URLTabPlugin.TabTypes.Client)
-                                    {
-                                        utpctss.Parent.Controls.Find("txtClientUrl", true)[0].Text = utp.TabUrl;
-                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkClient", true)[0];
-                                        ck.CheckState = CheckState.Checked;
-                                    }
-                                    else if(utp.TabType == URLTabPlugin.TabTypes.Location)  
-                                    {
-                                        
-                                        utpctss.Parent.Controls.Find("txtLocationUrl", true)[0].Text = utp.TabUrl;
-                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkLocation", true)[0];
-                                        ck.CheckState = CheckState.Checked;
-                                    }
-                                    else if (utp.TabType == URLTabPlugin.TabTypes.Computer)
-                                    {
-                                        utpctss.Parent.Controls.Find("txtComputerUrl", true)[0].Text = utp.TabUrl;
-                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkComputer", true)[0];
-                                        ck.CheckState = CheckState.Checked;
-                                    }
-                                    
+                                    utpctss.Parent.Controls.Find("txtClientUrl", true)[0].Text = utp.TabUrl;
+                                    CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkClient", true)[0];
+                                    ck.CheckState = CheckState.Checked;
                                 }
+                                else if(utp.TabType == URLTabPlugin.TabTypes.Location)  
+                                {
+                                        
+                                    utpctss.Parent.Controls.Find("txtLocationUrl", true)[0].Text = utp.TabUrl;
+                                    CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkLocation", true)[0];
+                                    ck.CheckState = CheckState.Checked;
+                                }
+                                else if (utp.TabType == URLTabPlugin.TabTypes.Computer)
+                                {
+                                    utpctss.Parent.Controls.Find("txtComputerUrl", true)[0].Text = utp.TabUrl;
+                                    CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkComputer", true)[0];
+                                    ck.CheckState = CheckState.Checked;
+                                }
+                                    
                             }
                         }
-                        /*
-                        if (utp.TabType == URLTabPlugin.TabTypes.Client)
-                        {
-                            utpct.tabClientUrl = utp.TabUrl;
-
-                        }*/
-                        
-                        
                     }
+                    /*
+                    if (utp.TabType == URLTabPlugin.TabTypes.Client)
+                    {
+                        utpct.tabClientUrl = utp.TabUrl;
+
+                    }*/
+                        
+                        
                 }
             }
         }
