@@ -197,6 +197,7 @@ public class Tabs : LabTech.Interfaces.ITabs
             StreamReader sr = new StreamReader(memoryStream);
             objHost.SetSQL("DELETE FROM Labtech.Properties WHERE Name='"+this.propertyString+"'");
             objHost.SetSQL("INSERT INTO Labtech.Properties (Name, Value) VALUES('"+this.propertyString+"','"+sr.ReadToEnd()+"')");
+            MessageBox.Show("Config saved. Close the current window to refresh tabs.");
         }
         else
         {
@@ -233,22 +234,6 @@ public class Tabs : LabTech.Interfaces.ITabs
                 }
 
 
-                /* Serialize and write the list */
-                /*
-                UTP.Add(new URLTabPlugin("SBCC Reporting", "http://sbcc.sbinc.com:8080/reporting/index.php?m=2", URLTabPlugin.TabTypes.Client));
-                UTP.Add(new URLTabPlugin("SBCC Reporting", "http://sbcc.sbinc.com:8080/reporting", URLTabPlugin.TabTypes.Location));
-                UTP.Add(new URLTabPlugin("SBCC Reporting", "http://sbcc.sbinc.com:8080/reporting", URLTabPlugin.TabTypes.Computer));
-                UTP.Add(new URLTabPlugin("ConnectWise Reporting", "http://cw.sbinc.com:8080/reporting", URLTabPlugin.TabTypes.Client));
-                UTP.Add(new URLTabPlugin("ConnectWise Reporting", "http://cw.sbinc.com:8080/reporting", URLTabPlugin.TabTypes.Location));
-                UTP.Add(new URLTabPlugin("ConnectWise Reporting", "http://cw.sbinc.com:8080/reporting", URLTabPlugin.TabTypes.Computer));
-                    
-
-                serializer.WriteObject(stream1, UTP);
-
-                stream1.Position = 0;
-                StreamReader sr = new StreamReader(stream1);
-                MessageBox.Show(sr.ReadToEnd());
-                 */
                 TabControl tc = new TabControl();
                 p.Controls.Add(tc);
                 tc.Dock = DockStyle.Fill;
