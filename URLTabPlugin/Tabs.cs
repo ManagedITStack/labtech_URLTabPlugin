@@ -195,8 +195,8 @@ public class Tabs : LabTech.Interfaces.ITabs
             serializer.WriteObject(memoryStream, UTP);
             memoryStream.Position = 0;
             StreamReader sr = new StreamReader(memoryStream);
-            objHost.SetSQL("DELETE FROM Labtech.Properties WHERE Name='"+this.propertyString+"'");
-            objHost.SetSQL("INSERT INTO Labtech.Properties (Name, Value) VALUES('"+this.propertyString+"','"+sr.ReadToEnd()+"')");
+            objHost.SetSQL("DELETE FROM Properties WHERE Name='"+this.propertyString+"'");
+            objHost.SetSQL("INSERT INTO Properties (Name, Value) VALUES('"+this.propertyString+"','"+sr.ReadToEnd()+"')");
             MessageBox.Show("Config saved. Close the current window to refresh tabs.");
         }
         else
@@ -221,7 +221,7 @@ public class Tabs : LabTech.Interfaces.ITabs
 
             this.propertyString = "URLTabPlugin+" + c.Text.Replace(" ", "_");
 
-            string result = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + this.propertyString + "%'");
+            string result = objHost.GetSQL("SELECT Value FROM properties where Name LIKE '%" + this.propertyString + "%'");
 
             if (result != "-9999")
             {
@@ -291,7 +291,7 @@ public class Tabs : LabTech.Interfaces.ITabs
                 dynamicFlowLayoutPanel.WrapContents = false;
                 tconfig.Controls.Add(dynamicFlowLayoutPanel);
 
-                string results = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + propertyString + "%'");
+                string results = objHost.GetSQL("SELECT Value FROM properties where Name LIKE '%" + propertyString + "%'");
                 if (results != "-9999")
                 {
                     List<string> TabsCompleted = new List<string>();
