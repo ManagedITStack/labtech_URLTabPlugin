@@ -12,6 +12,7 @@ public class Tabs : LabTech.Interfaces.ITabs
 {
     private IControlCenter objHost;
     private FlowLayoutPanel dynamicFlowLayoutPanel;
+    private string propertyString;
 
     void LabTech.Interfaces.ITabs.AlertsClose()
     {
@@ -145,6 +146,64 @@ public class Tabs : LabTech.Interfaces.ITabs
         URLTabPluginConfigTab utpct = new URLTabPluginConfigTab();
         dynamicFlowLayoutPanel.Controls.Add(utpct);
     }
+    void btnSaveConfig_Click(object sender, EventArgs e)
+    {
+        Button btnSaveC = (Button)sender;
+        Panel urltabconfig = (Panel)btnSaveC.Parent;
+
+        // loop through each tab
+        MemoryStream memoryStream = new MemoryStream();
+        List<URLTabPlugin> UTP = new List<URLTabPlugin>();
+        var serializer = new DataContractJsonSerializer(UTP.GetType());
+
+        /* Get and loop through all the tabs */
+        Control[] tabLabels = dynamicFlowLayoutPanel.Controls.Find("txtTabLabel",true);
+
+        /* Error checking, form validation */
+        bool foundError = false;
+        foreach (Control cont in tabLabels) 
+        {
+            TextBox conlab = (TextBox)cont;
+            if (conlab.Text.Trim().Length < 1 || !System.Text.RegularExpressions.Regex.IsMatch(conlab.Text.Trim(), @"^[a-zA-Z0-9\s]+$"))
+            {
+                foundError=true;
+            }
+        }
+
+        if (!foundError)
+        {
+            foreach (Control cont in tabLabels)
+            {
+
+                TextBox conlab = (TextBox)cont;
+                CheckBox chkClient = (CheckBox)conlab.Parent.Controls.Find("chkClient", true)[0];
+                CheckBox chkLocation = (CheckBox)conlab.Parent.Controls.Find("chkLocation", true)[0];
+                CheckBox chkComputer = (CheckBox)conlab.Parent.Controls.Find("chkComputer", true)[0];
+                if (chkClient.CheckState == CheckState.Checked && conlab.Parent.Controls.Find("txtClientUrl", true)[0].Text.Trim().Length > 0)
+                {
+                    UTP.Add(new URLTabPlugin(conlab.Text, conlab.Parent.Controls.Find("txtClientUrl", true)[0].Text, URLTabPlugin.TabTypes.Client));
+                }
+                if (chkLocation.CheckState == CheckState.Checked && conlab.Parent.Controls.Find("txtLocationUrl", true)[0].Text.Trim().Length > 0)
+                {
+                    UTP.Add(new URLTabPlugin(conlab.Text, conlab.Parent.Controls.Find("txtLocationUrl", true)[0].Text, URLTabPlugin.TabTypes.Location));
+                }
+                if (chkComputer.CheckState == CheckState.Checked && conlab.Parent.Controls.Find("txtComputerUrl", true)[0].Text.Trim().Length > 0)
+                {
+                    UTP.Add(new URLTabPlugin(conlab.Text, conlab.Parent.Controls.Find("txtComputerUrl", true)[0].Text, URLTabPlugin.TabTypes.Computer));
+                }
+            }
+            serializer.WriteObject(memoryStream, UTP);
+            memoryStream.Position = 0;
+            StreamReader sr = new StreamReader(memoryStream);
+            objHost.SetSQL("DELETE FROM Labtech.Properties WHERE Name='"+this.propertyString+"'");
+            objHost.SetSQL("INSERT INTO Labtech.Properties (Name, Value) VALUES('"+this.propertyString+"','"+sr.ReadToEnd()+"')");
+        }
+        else
+        {
+            MessageBox.Show("Please enter an alpha-numeric only name for all your tabs before saving.\nYour config was NOT saved as we have located errors.");
+        }
+        
+    }
     public void BuildSubURLTabs(object sender, EventArgs ev, URLTabPlugin.TabTypes tt)
     {
 
@@ -159,9 +218,9 @@ public class Tabs : LabTech.Interfaces.ITabs
 
             /* Create a list of URLTabs */
 
-            string propertyString = "URLTabPlugin+" + c.Text.Replace(" ", "_");
+            this.propertyString = "URLTabPlugin+" + c.Text.Replace(" ", "_");
 
-            string result = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + propertyString + "%'");
+            string result = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + this.propertyString + "%'");
 
             if (result != "-9999")
             {
@@ -230,6 +289,7 @@ public class Tabs : LabTech.Interfaces.ITabs
                 tconfig.Controls.Add(buttonFlowLayoutPanel);
                 Button btnSaveConfig = new Button();
                 btnSaveConfig.Text = "Save Config";
+                btnSaveConfig.Click += new EventHandler(btnSaveConfig_Click);
                 Button btnAddTab = new Button();
                 btnAddTab.Text = "Add Tab";
                 btnAddTab.Click += new EventHandler(btnAddTab_Click);
