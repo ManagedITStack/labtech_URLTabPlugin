@@ -161,6 +161,7 @@
             this.Controls.Add(this.panel1);
             this.Name = "URLTabPluginConfigTab";
             this.Size = new System.Drawing.Size(488, 190);
+            this.Load += new System.EventHandler(this.URLTabPluginConfigTab_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);

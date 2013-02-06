@@ -35,6 +35,61 @@ using System.Windows.Forms;
                 txtClientUrl.Text = value;
             }
         }
+        public CheckState tabClientCheck
+        {
+            get
+            {
+                return chkClient.CheckState = CheckState.Checked;
+            }
+            set
+            {
+                chkClient.CheckState = value;
+            }
+        }
+        public string tabLocationUrl
+        {
+            get
+            {
+                return txtLocationUrl.Text;
+            }
+            set
+            {
+                txtLocationUrl.Text = value;
+            }
+        }
+        public CheckState tabLocationCheck
+        {
+            get
+            {
+                return chkLocation.CheckState = CheckState.Checked;
+            }
+            set
+            {
+                chkLocation.CheckState = value;
+            }
+        }
+        public string tabComputerUrl
+        {
+            get
+            {
+                return txtComputerUrl.Text;
+            }
+            set
+            {
+                txtComputerUrl.Text = value;
+            }
+        }
+        public CheckState tabComputerCheck
+        {
+            get
+            {
+                return chkComputer.CheckState = CheckState.Checked;
+            }
+            set
+            {
+                chkComputer.CheckState = value;
+            }
+        }
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
 
@@ -79,5 +134,10 @@ using System.Windows.Forms;
             {
                 txtComputerUrl.Enabled = false;
             }
+        }
+
+        private void URLTabPluginConfigTab_Load(object sender, EventArgs e)
+        {
+
         }
     }

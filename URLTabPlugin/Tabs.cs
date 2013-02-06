@@ -249,12 +249,64 @@ public class Tabs : LabTech.Interfaces.ITabs
                 string results = objHost.GetSQL("SELECT Value FROM labtech.properties where Name LIKE '%" + propertyString + "%'");
                 if (results != "-9999")
                 {
+                    List<string> TabsCompleted = new List<string>();
+
                     /* Rewrite, this doesn't make sense. Deserialize it instead and loop through those results. */
                     foreach (URLTabPlugin utp in UTP)
                     {
-                        URLTabPluginConfigTab utpct = new URLTabPluginConfigTab();
-                        utpct.tabLabel = results;
-                        dynamicFlowLayoutPanel.Controls.Add(utpct);
+                        URLTabPluginConfigTab utpct;
+
+                        // If the tab isn't in the list yet, create it
+                        if (TabsCompleted.IndexOf(utp.TabLabel) < 0)
+                        {
+                            TabsCompleted.Add(utp.TabLabel);
+                            utpct = new URLTabPluginConfigTab();
+                            utpct.tabLabel = utp.TabLabel;
+                            utpct.tabClientUrl = utp.TabUrl;
+                            utpct.tabClientCheck = CheckState.Checked;
+                            dynamicFlowLayoutPanel.Controls.Add(utpct);
+                            
+                        }
+                        // if it is, find it.
+                        else {
+                            Control[] utpcts = dynamicFlowLayoutPanel.Controls.Find("txtTabLabel",true);
+
+                            foreach(Control utpctss in utpcts)
+                            {
+                                if (utpctss.Text == utp.TabLabel)
+                                {
+                                    /* ..And check and fill in the right datafields based on the Tab type */
+                                    if (utp.TabType == URLTabPlugin.TabTypes.Client)
+                                    {
+                                        utpctss.Parent.Controls.Find("txtClientUrl", true)[0].Text = utp.TabUrl;
+                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkClient", true)[0];
+                                        ck.CheckState = CheckState.Checked;
+                                    }
+                                    else if(utp.TabType == URLTabPlugin.TabTypes.Location)  
+                                    {
+                                        
+                                        utpctss.Parent.Controls.Find("txtLocationUrl", true)[0].Text = utp.TabUrl;
+                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkLocation", true)[0];
+                                        ck.CheckState = CheckState.Checked;
+                                    }
+                                    else if (utp.TabType == URLTabPlugin.TabTypes.Computer)
+                                    {
+                                        utpctss.Parent.Controls.Find("txtComputerUrl", true)[0].Text = utp.TabUrl;
+                                        CheckBox ck = (CheckBox)utpctss.Parent.Controls.Find("chkComputer", true)[0];
+                                        ck.CheckState = CheckState.Checked;
+                                    }
+                                    
+                                }
+                            }
+                        }
+                        /*
+                        if (utp.TabType == URLTabPlugin.TabTypes.Client)
+                        {
+                            utpct.tabClientUrl = utp.TabUrl;
+
+                        }*/
+                        
+                        
                     }
                 }
             }
